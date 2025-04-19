@@ -1,5 +1,6 @@
-import {Button, Card, Form, Input, message} from 'antd';
-import api from '../api/axios'; // ✅ use the shared axios instance
+import { Button, Card, Form, Input, message } from 'antd';
+import { Link } from 'react-router-dom'; // ✅ Add Link for navigation
+import api from '../api/axios';
 
 const LoginPage = () => {
   const onFinish = async (values) => {
@@ -25,7 +26,12 @@ const LoginPage = () => {
             <Input.Password />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>Login</Button>
+            <Button type="primary" htmlType="submit" block>
+              Login
+            </Button>
+          </Form.Item>
+          <Form.Item>
+            Don't have an account? <Link to="/register">Register here</Link>
           </Form.Item>
         </Form>
       </Card>
