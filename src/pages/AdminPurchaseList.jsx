@@ -7,10 +7,19 @@ const { Text } = Typography;
 
 const AdminPurchaseList = () => {
   const [purchases, setPurchases] = useState([]);
+  const [sortInfo, setSortInfo] = useState({
+    field: 'created_at',
+    order: 'descend'
+  });
 
-  const fetchPurchases = async () => {
+  const fetchPurchases = async (sortField, sortOrder) => {
     try {
-      const res = await api.get('/purchase/admin/all');
+      const res = await api.get('/purchase/admin/all', {
+        params: {
+          sort_by: sortField,
+          order: sortOrder === 'ascend' ? 'asc' : 'desc'
+        }
+      });
       setPurchases(res.data.items);
     } catch (err) {
       message.error('Failed to load purchases');
@@ -18,8 +27,17 @@ const AdminPurchaseList = () => {
   };
 
   useEffect(() => {
-    fetchPurchases();
-  }, []);
+    fetchPurchases(sortInfo.field, sortInfo.order);
+  }, [sortInfo]);
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (sorter.order) {
+      setSortInfo({
+        field: sorter.field,
+        order: sorter.order
+      });
+    }
+  };
 
   const columns = [
     {
@@ -33,7 +51,23 @@ const AdminPurchaseList = () => {
     {
       title: 'Total Amount',
       dataIndex: 'total_amount',
+      sorter: true,
+      sortOrder: sortInfo.field === 'total_amount' ? sortInfo.order : null,
       render: (amount) => `৳ ${parseFloat(amount).toFixed(2)}`
+    },
+    {
+      title: 'Created At',
+      dataIndex: 'created_at',
+      sorter: true,
+      sortOrder: sortInfo.field === 'created_at' ? sortInfo.order : null,
+      render: (val) => new Date(val).toLocaleString()
+    },
+    {
+      title: 'Status',
+      dataIndex: 'is_completed',
+      sorter: true,
+      sortOrder: sortInfo.field === 'is_completed' ? sortInfo.order : null,
+      render: (val) => (val ? '✅ Completed' : '❌ Pending')
     },
     {
       title: 'Installments',
@@ -62,6 +96,7 @@ const AdminPurchaseList = () => {
         dataSource={purchases}
         columns={columns}
         rowKey="id"
+        onChange={handleTableChange}
       />
     </div>
   );
